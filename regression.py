@@ -3,6 +3,7 @@ import numpy as np
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
+import pickle as pk
 
 
 
@@ -91,3 +92,12 @@ plt.title('Evolution of Regression Lines during Gradient Descent')
 plt.legend()
 plt.grid(True)
 plt.show()
+
+#write to file
+with open("model","wb") as f :
+    pk.dump(reg,f)
+
+#load file to variable and I can predict
+with open("model","rb") as f :
+    x = pk.load(f)
+x.predict(200)
