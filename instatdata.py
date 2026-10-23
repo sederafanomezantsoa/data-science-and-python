@@ -22,19 +22,13 @@ labels_bruts = meta.column_names_to_labels   # dict {code: libellé}
 
 # ---- 3. Réparation des accents (mojibake cp932 → utf-8 → latin-1 → utf-8) ----
 def reparer(s):
-    """Corrige un mojibake du type 'Mﾃδｩnage' → 'Ménage'."""
+    """UTF-8 lu comme cp1252 : 'MÃ©nage' → 'Ménage', 'â€¦' → '…'."""
     if not isinstance(s, str) or not s:
         return s
     try:
-        return (
-            s.encode('cp932')
-             .decode('utf-8')
-             .encode('latin-1')
-             .decode('utf-8')
-        )
+        return s.encode('cp1252').decode('utf-8')
     except (UnicodeError, UnicodeDecodeError):
         return s
-
 labels = {code: reparer(lib) for code, lib in labels_bruts.items()}
 
 # Si vous avez installé ftfy (pip install ftfy), la version "pro" :
@@ -43,7 +37,7 @@ labels = {code: reparer(lib) for code, lib in labels_bruts.items()}
 
 # ---- 4. Aperçu des libellés réparés ----
 print("=== Libellés réparés (extrait) ===")
-for code, lib in list(labels.items())[:15]:
+for code, lib in list(labels.items()):
     print(f"{code:25s} → {lib}")
 
 # ---- 5. On garde une copie avec les CODES d'origine (pour fusions) ----
@@ -52,7 +46,7 @@ df_codes = df.copy()
 # ---- 6. Renommage des colonnes en "code — libellé" ----
 # (on garde le code pour ne pas perdre la traçabilité)
 df.columns = [
-    f"{c} — {labels.get(c, '').strip()}" if labels.get(c) else c
+    f"{labels.get(c, '').strip()}" if labels.get(c) else c
     for c in df.columns
 ]
 
@@ -62,15 +56,15 @@ df.columns = [
 # ---- 7. Aperçu des données ----
 print("\n=== 5 premières lignes ===")
 print(df.head())
-pd.Series(df.columns).to_csv("xxxx.csv", index=False, header=["colonne"], encoding="utf-8-sig")
+pd.Series(df.columns).to_csv("xxxx.csv", index=False, header=["colonne"], encoding="utf-8")
 
 print("\n=== Colonnes finales (extrait) ===")
-for c in list(df.columns)[:15]:
+for c in list(df.columns):
     print(" •", c)
 
 # ---- 8. Structure et statistiques rapides ----
-print("\n=== df.info() ===")
-df.info()
+# print("\n=== df.info() ===")
+# df.info()
 
 # print("\n=== df.describe() (colonnes numériques) ===")
 # print(df.describe().T)
